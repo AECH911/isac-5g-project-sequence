@@ -1,8 +1,67 @@
-# OFDM / 5G-Like Waveform Generator
+# OFDM / 5G-Like Waveform Learning Module
 
-A Python-based OFDM waveform generator built to develop intuition for 5G-style waveforms and provide a starting point for future ISAC (Integrated Sensing and Communications) projects.
+A Python-based lesson-driven OFDM waveform generator built to help develop intuition for 5G-style wireless systems and provide a foundation for future ISAC (Integrated Sensing and Communications) work.
 
-This project generates a simplified 5G-like OFDM frame with configurable waveform parameters and produces several useful visualizations for communications analysis.
+This project is structured as a **learning module**, not just a single plotting script. It walks through the major ideas behind OFDM waveform generation:
+
+1. modulation symbols
+2. resource-grid construction
+3. frequency-domain OFDM symbols
+4. time-domain waveform generation using IFFT
+5. cyclic prefix insertion
+6. spectrum visualization
+7. orthogonality intuition
+
+---
+
+## Project purpose
+
+The goal of this project is to make OFDM more visually and conceptually understandable.
+
+Many beginners can follow the code for:
+- FFT
+- IFFT
+- QPSK
+- 16QAM
+- subcarrier mapping
+
+but still struggle to connect that with:
+
+- resource grids
+- subcarriers
+- OFDM symbols
+- time-domain waveforms
+- spectrum overlap
+- orthogonality
+
+This module is designed to bridge that gap.
+
+---
+
+## What this project teaches
+
+This module is organized around two main learning tracks:
+
+### 1. Waveform generation lesson
+This lesson shows how a 5G-like OFDM waveform is built from:
+
+- modulation symbols
+- active subcarriers
+- pilot tones
+- frequency-domain resource mapping
+- IFFT-based OFDM modulation
+- cyclic prefix insertion
+
+### 2. Orthogonality lesson
+This lesson provides a smaller, more intuitive OFDM demo to show:
+
+- individual subcarriers in time
+- summed OFDM symbols
+- smooth subcarrier spectra
+- combined OFDM spectrum
+- the difference between smooth spectrum views and FFT-bin views
+
+---
 
 ## Features
 
@@ -13,74 +72,51 @@ This project generates a simplified 5G-like OFDM frame with configurable wavefor
   - QPSK
   - 16QAM
 - Pilot tone insertion
-- OFDM modulation with cyclic prefix
-- Visualization of:
-  - time-domain waveform
-  - constellation
-  - spectrum
-  - resource grid
+- Frequency-domain resource grid generation
+- OFDM modulation using IFFT
+- Cyclic prefix insertion
+- Time-domain waveform generation
+- Spectrum visualization
+- Resource-grid visualization
+- Orthogonality teaching demo
 
-## Why this project matters
+---
 
-This project builds the communications waveform foundation needed for more advanced wireless and ISAC work.
+## Current code structure
 
-A large amount of modern communications and sensing research starts with OFDM because it allows you to study:
+The cleaned-up script is organized into sections:
 
-- subcarrier allocation
-- modulation
-- pilot placement
-- time/frequency structure
-- spectral behavior
-- channel estimation foundations
-- future sensing extensions such as range and Doppler processing
+- `CONFIG`
+- `MODULATION`
+- `RESOURCE GRID / OFDM CORE`
+- `SUMMARY / INFO`
+- `PLOTTING: MAIN WAVEFORM LESSONS`
+- `PLOTTING: ORTHOGONALITY LESSON`
+- `LESSON RUNNERS`
+- `MAIN`
 
-A 5G NR downlink-style waveform is also a common starting point for ISAC examples.
+This makes the project read more like a guided signal-generation module rather than a collection of unrelated experiments.
 
-## Project structure
+---
+
+## Example project structure
 
 ```text
-OFDM-5G-Waveform-Generator/
+OFDM-5G-Waveform-Learning-Module/
 │
-├── ofdm_waveform_generator.py
-├── requirements.txt
+├── ofdm_waveform_lesson.py
 ├── README.md
+├── requirements.txt
 └── images/
-    ├── resource_grid.png
-    ├── constellation.png
-    ├── spectrum.png
-    └── time_waveform.png
-
-# Expected outputs
-
-When the script runs successfully, it should produce the following outputs.
-
-### 1. Terminal / console summary
-A short text summary is printed to the terminal showing the key waveform settings and derived values, such as:
-
-- FFT size
-- subcarrier spacing
-- sample rate
-- number of OFDM symbols
-- modulation type
-- number of active subcarriers
-- cyclic prefix length
-- pilot spacing
-- waveform length
-- approximate occupied bandwidth
-
-Example:
-
-```text
-========== OFDM / 5G-like Waveform Generator ==========
-FFT size                : 256
-Subcarrier spacing      : 30.0 kHz
-Sample rate             : 7.680 MHz
-OFDM symbols            : 14
-Modulation              : 16QAM
-Active subcarriers      : 180
-Cyclic prefix length    : 18 samples
-Pilot spacing (freq)    : every 12 active SCs
-Pilot spacing (time)    : every 4 OFDM symbols
-Waveform length         : 3836 samples
-Occupied bandwidth ~    : 5.400 MHz
-=======================================================
+    ├── resource_grid_type_map.png
+    ├── resource_grid_magnitude.png
+    ├── constellation_plot.png
+    ├── frequency_domain_symbol.png
+    ├── symbol_domain_comparison.png
+    ├── time_domain_waveform.png
+    ├── waveform_spectrum.png
+    ├── orthogonality_subcarriers_time.png
+    ├── orthogonality_sum_time.png
+    ├── orthogonality_subcarrier_spectra.png
+    ├── orthogonality_combined_spectrum.png
+    └── orthogonality_fft_bins.png
