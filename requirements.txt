@@ -1,0 +1,10 @@
+
+---
+
+# `requirements.txt`
+
+Paste this into `requirements.txt`:
+
+```text
+numpy
+matplotlib
