@@ -40,83 +40,72 @@ This module is designed to bridge that gap.
 
 ## What this project teaches
 
-This module is organized around two main learning tracks:
-
-### 1. Waveform generation lesson
-This lesson shows how a 5G-like OFDM waveform is built from:
-
-- modulation symbols
-- active subcarriers
-- pilot tones
-- frequency-domain resource mapping
-- IFFT-based OFDM modulation
-- cyclic prefix insertion
-
-### 2. Orthogonality lesson
-This lesson provides a smaller, more intuitive OFDM demo to show:
+This project is a hands-on Python learning environment for understanding OFDM concepts, including:
 
 - individual subcarriers in time
 - summed OFDM symbols
-- smooth subcarrier spectra
-- combined OFDM spectrum
-- the difference between smooth spectrum views and FFT-bin views
+- individual subcarrier spectra
+- combined OFDM symbol spectra
+- discrete frequency-domain bin values
 
 ---
 
-## Features
+## Current structure
 
-- Configurable FFT size
-- Configurable subcarrier spacing
-- Configurable number of OFDM symbols
-- Supports:
-  - QPSK
-  - 16QAM
-- Pilot tone insertion
-- Frequency-domain resource grid generation
-- OFDM modulation using IFFT
-- Cyclic prefix insertion
-- Time-domain waveform generation
-- Spectrum visualization
-- Resource-grid visualization
-- Orthogonality teaching demo
+- `main.py` - runs the lesson/demo
+- `ofdm_math.py` - waveform and OFDM math generation
+- `ofdm_plots.py` - plotting functions
+- `modulation.py` - modulation constellation helpers
+- `nr_resources.py` - resource block and subcarrier spacing helpers
 
 ---
 
-## Current code structure
+## Planned Waveform Expansion
 
-The cleaned-up script is organized into sections:
+The current implementation begins with the OFDM synthesis equation to build intuition for
+orthogonal subcarriers, discrete frequency-domain bin placement, and spectrum formation.
 
-- `CONFIG`
-- `MODULATION`
-- `RESOURCE GRID / OFDM CORE`
-- `SUMMARY / INFO`
-- `PLOTTING: MAIN WAVEFORM LESSONS`
-- `PLOTTING: ORTHOGONALITY LESSON`
-- `LESSON RUNNERS`
-- `MAIN`
+The long-term goal is to expand `ofdm_math.py` into a waveform-generation module that supports:
 
-This makes the project read more like a guided signal-generation module rather than a collection of unrelated experiments.
+- Plain OFDM / synthesis-equation view
+- CP-OFDM
+- DFT-s-OFDM
+- LTE and 5G NR-oriented numerology and resource-block examples
+- Additional waveform-specific transmit processing as the project matures
+
+This allows the same plotting tools to be reused while comparing different waveform generation methods.
 
 ---
 
-## Example project structure
+## OFDM Math Background
 
-```text
-OFDM-5G-Waveform-Learning-Module/
-│
-├── ofdm_waveform_lesson.py
-├── README.md
-├── requirements.txt
-└── images/
-    ├── resource_grid_type_map.png
-    ├── resource_grid_magnitude.png
-    ├── constellation_plot.png
-    ├── frequency_domain_symbol.png
-    ├── symbol_domain_comparison.png
-    ├── time_domain_waveform.png
-    ├── waveform_spectrum.png
-    ├── orthogonality_subcarriers_time.png
-    ├── orthogonality_sum_time.png
-    ├── orthogonality_subcarrier_spectra.png
-    ├── orthogonality_combined_spectrum.png
-    └── orthogonality_fft_bins.png
+The current implementation begins with the OFDM synthesis equation, which is a direct
+time-domain representation of an OFDM symbol as a sum of orthogonal subcarriers.
+
+\[
+x[n] = \frac{1}{\sqrt{N}} \sum_{k \in \mathcal{K}} a_k e^{j 2 \pi k \Delta f t_n}
+\]
+
+Where:
+
+- \(a_k\) is the complex symbol placed on subcarrier \(k\)
+- \(k\) is the subcarrier index
+- \(\Delta f\) is the subcarrier spacing
+- \(N\) is the FFT size
+- \(t_n\) is the discrete-time sample location
+- \(\mathcal{K}\) is the set of active subcarriers
+
+This representation is useful for building intuition because it shows that an OFDM signal
+can be interpreted as the sum of multiple orthogonal complex exponentials, each weighted
+by a modulation symbol.
+
+In implementation-focused systems such as LTE and 5G NR, OFDM is usually generated using
+frequency-domain bin mapping followed by an IFFT. This project is being developed to show
+both perspectives:
+
+1. the synthesis-equation view for learning and intuition
+2. the implementation view used for CP-OFDM and later waveform models
+
+## Setup
+```bash
+pip install -r requirements.txt

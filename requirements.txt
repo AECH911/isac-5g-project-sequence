@@ -8,3 +8,6 @@ Paste this into `requirements.txt`:
 ```text
 numpy
 matplotlib
+dataclasses
+pathlib
+re

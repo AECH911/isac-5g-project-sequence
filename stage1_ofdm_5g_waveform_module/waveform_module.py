@@ -18,10 +18,6 @@ class OFDMConfig:
     pilot_spacing_freq: int = 12
     pilot_spacing_time: int = 4
     pilot_value: complex = 1 + 1j
-    demo_n_fft: int = 64
-    demo_subcarrier_spacing: float = 15e3
-    demo_active_bins: tuple = (-2, -1, 0, 1, 2)
-    demo_symbols: tuple = (1 + 0j, 1 + 0j, 1 + 0j, 1 + 0j, 1 + 0j)
 
 
 # ============================================================
@@ -358,136 +354,6 @@ def plot_symbol_domain_comparison(resource_grid: np.ndarray, cp_len: int, symbol
     plt.show()
 
 
-# ============================================================
-# PLOTTING: ORTHOGONALITY LESSON
-# ============================================================
-
-def visualize_ofdm_orthogonality_demo(
-    n_fft: int = 64,
-    subcarrier_spacing: float = 15e3,
-    active_bins=None,
-    symbols=None,
-):
-    """
-    Small visual demo to build intuition for:
-    - individual subcarriers in time
-    - their sum in time
-    - their smooth spectra
-    - the difference between smooth spectra and FFT-bin values
-    """
-    if active_bins is None:
-        active_bins = [-2, -1, 0, 1, 2]
-
-    if symbols is None:
-        symbols = [1 + 0j] * len(active_bins)
-
-    if len(active_bins) != len(symbols):
-        raise ValueError("active_bins and symbols must have the same length")
-
-    fs = n_fft * subcarrier_spacing
-    t = np.arange(n_fft) / fs
-
-    subcarrier_waves = []
-    for k, a in zip(active_bins, symbols):
-        wave = a * np.exp(1j * 2 * np.pi * k * subcarrier_spacing * t)
-        subcarrier_waves.append(wave)
-
-    subcarrier_waves = np.array(subcarrier_waves)
-    tx_symbol = np.sum(subcarrier_waves, axis=0) / np.sqrt(n_fft)
-
-    n_spectrum = 8192
-    freq_axis = np.fft.fftshift(np.fft.fftfreq(n_spectrum, d=1 / fs))
-
-    subcarrier_spectra = []
-    for wave in subcarrier_waves:
-        W = np.fft.fftshift(np.fft.fft(wave, n=n_spectrum))
-        subcarrier_spectra.append(W)
-
-    subcarrier_spectra = np.array(subcarrier_spectra)
-    TX = np.fft.fftshift(np.fft.fft(tx_symbol, n=n_spectrum))
-
-    plt.figure(figsize=(12, 6))
-    for k, wave in zip(active_bins, subcarrier_waves):
-        plt.plot(t * 1e6, np.real(wave), label=f"k={k}")
-    plt.title("Lesson Demo: Individual OFDM Subcarriers in Time (Real Part)")
-    plt.xlabel("Time (µs)")
-    plt.ylabel("Amplitude")
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-    plt.figure(figsize=(12, 4))
-    plt.plot(t * 1e6, np.real(tx_symbol), label="Real")
-    plt.plot(t * 1e6, np.imag(tx_symbol), label="Imag", alpha=0.8)
-    plt.title("Lesson Demo: Summed OFDM Symbol in Time")
-    plt.xlabel("Time (µs)")
-    plt.ylabel("Amplitude")
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-    plt.figure(figsize=(12, 6))
-    for k, W in zip(active_bins, subcarrier_spectra):
-        mag = np.abs(W)
-        mag /= np.max(mag) + 1e-12
-        plt.plot(freq_axis / 1e3, mag, label=f"k={k}")
-    plt.title("Lesson Demo: Individual Subcarrier Spectra")
-    plt.xlabel("Frequency (kHz)")
-    plt.ylabel("Normalized Magnitude")
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-    plt.figure(figsize=(12, 5))
-    mag_tx = np.abs(TX)
-    mag_tx /= np.max(mag_tx) + 1e-12
-    plt.plot(freq_axis / 1e3, mag_tx)
-    plt.title("Lesson Demo: Combined OFDM Symbol Spectrum")
-    plt.xlabel("Frequency (kHz)")
-    plt.ylabel("Normalized Magnitude")
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.show()
-
-    freq_bins = np.zeros(n_fft, dtype=complex)
-    center = n_fft // 2
-    for k, a in zip(active_bins, symbols):
-        freq_bins[center + k] = a
-
-    plt.figure(figsize=(12, 8))
-
-    plt.subplot(3, 1, 1)
-    plt.stem(np.abs(freq_bins), basefmt=" ")
-    plt.title("Lesson Demo: Discrete Frequency-Domain Bin Values")
-    plt.ylabel("Magnitude")
-    plt.grid(True, alpha=0.3)
-
-    plt.subplot(3, 1, 2)
-    plt.stem(np.real(freq_bins), basefmt=" ")
-    plt.ylabel("Real")
-    plt.grid(True, alpha=0.3)
-
-    plt.subplot(3, 1, 3)
-    plt.stem(np.imag(freq_bins), basefmt=" ")
-    plt.xlabel("FFT Bin Index")
-    plt.ylabel("Imag")
-    plt.grid(True, alpha=0.3)
-
-    plt.tight_layout()
-    plt.show()
-
-    print("=== Orthogonality Check (Inner Products Over One OFDM Symbol) ===")
-    for i, ki in enumerate(active_bins):
-        for j, kj in enumerate(active_bins):
-            val = np.vdot(subcarrier_waves[i], subcarrier_waves[j])
-            if i == j:
-                print(f"<k={ki}, k={kj}> = {val:.4f}")
-            else:
-                print(f"<k={ki}, k={kj}> = {val:.4e}")
-
 
 # ============================================================
 # LESSON RUNNERS
@@ -518,17 +384,6 @@ def run_waveform_generation_lesson(cfg: OFDMConfig):
     plot_waveform_spectrum(tx_waveform, fs, title_suffix)
 
 
-def run_orthogonality_lesson(cfg: OFDMConfig):
-    """
-    Small demo meant only to build intuition for orthogonality and
-    the difference between smooth subcarrier spectra and FFT-bin values.
-    """
-    visualize_ofdm_orthogonality_demo(
-        n_fft=cfg.demo_n_fft,
-        subcarrier_spacing=cfg.demo_subcarrier_spacing,
-        active_bins=list(cfg.demo_active_bins),
-        symbols=list(cfg.demo_symbols),
-    )
 
 
 # ============================================================
@@ -548,7 +403,6 @@ def main():
     )
 
     run_waveform_generation_lesson(cfg)
-    run_orthogonality_lesson(cfg)
 
 
 if __name__ == "__main__":
