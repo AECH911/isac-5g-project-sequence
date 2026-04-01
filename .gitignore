@@ -9,3 +9,4 @@ venv/
 .DS_Store
 Thumbs.db
 images/ofdm_images/
+waveform_module.py
